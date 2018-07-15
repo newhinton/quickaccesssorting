@@ -70,8 +70,6 @@
             this._setOnDrag();
             var scope = this;
             $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/SortingStrategy"), function (data, status) {
-                console.log("data: " + data);
-                console.log("status: " + status);
                 scope.$sortingStrategy = data;
                 scope.setInitialQuickaccessSettings();
             });
