@@ -93,8 +93,8 @@ class ApiController extends Controller
             $favorites[$i]['mtime'] = $node->getMTime();
             $i++;
         }
-
-        return new DataResponse(['favoriteFolders' => $favorites]);
+        return $favorites;
+        //return new DataResponse(['favoriteFolders' => $favorites]);
     }
 
 
@@ -166,7 +166,7 @@ class ApiController extends Controller
             $this->sessionid,
             $this->appName,
             'quickaccess_custom_sorting_order',
-            ""
+            "{}"
         );
     }
 

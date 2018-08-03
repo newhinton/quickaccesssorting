@@ -68,12 +68,58 @@
         initialize: function ($el) {
             this._injectDropdownMenu();
             this._setOnDrag();
+            this.nc13preinit();
+
             var scope = this;
+            console.log("load sorting");
             $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/SortingStrategy"), function (data, status) {
                 scope.$sortingStrategy = data;
                 scope.setInitialQuickaccessSettings();
             });
+
         },
+
+        /**
+         * Build Nextcloud 13 Favorites Access
+         */
+        nc13preinit: function () {
+            var favelem= document.getElementsByClassName('nav-favorites')[0];
+            favelem.classList.add("collapsible");
+            favelem.classList.add("open");
+
+            var ul = document.createElement("ul");                 // Create a <li> node
+            ul.id=this.$quickAccessListKey;
+            var scope = this;
+            //node.appendChild(textnode);                              // Append the text to <li>
+
+            favelem.appendChild(ul);     // Append <li> to <ul> with id="myList"
+
+
+            $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/FavoriteFolders"), function (data, status) {
+                for (var index = 0; index < data.length; ++index) {
+                    //console.log(data[index]);
+                    var node=document.createElement("li");
+                    node.setAttribute("folderposition",data[index].id);
+
+                    var a=document.createElement("a");
+                    a.setAttribute("href",OC.generateUrl("/apps/files/?dir=" + data[index].path.replace("files/", "/")));
+                    a.classList.add("nav-icon-files");
+                    a.classList.add("svg");
+                    a.innerHTML=data[index].name;
+                    node.appendChild(a);
+
+
+                    /*
+                    <li data-id="-Bravo" data-dir="/Bravo" data-view="files" class="nav--Bravo" folderposition="0">
+                        <a href="/server/index.php/apps/files/?dir=/Bravo&amp;view=files" class="nav-icon-files svg">Bravo</a>
+                    </li>
+                    */
+
+                    document.getElementById(scope.$quickAccessListKey).appendChild(node);
+                }
+            });
+
+            },
 
         /**
          * Event handler for when dragging an item
@@ -220,6 +266,7 @@
             } else if (this.$sortingStrategy === 'customorder') {
                 var scope = this;
                 $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/CustomSortingOrder"), function (data, status) {
+                    console.log(data);
                     var ordering = JSON.parse(data);
                     for (var i = 0; i < ordering.length; i++) {
                         for (var j = 0; j < list.length; j++) {
@@ -326,5 +373,5 @@
 
     };
 
-})(window, jQuery, RightClick);
+})(window, jQuery);
 
