@@ -121,40 +121,63 @@
                     var node=document.createElement("li");
 
                     node.classList.add("nav-"+encodeURIComponent(data[index].name));
+                    var id = data[index].id;
 
-                    node.setAttribute("data-id",data[index].id);
-
-                    node.setAttribute("data-view","files");
-                    node.setAttribute("folderposition",data[index].id);
+                    node.setAttribute("data-id",id);
+                    node.setAttribute("id",id);
+                    node.setAttribute("folderposition",id);
 
                     var a=document.createElement("a");
-
-                    //a.setAttribute("href",OC.generateUrl("/apps/files/?dir=" + data[index].path.replace("files/", "/")));
-                    var apppath =data[index].path.replace("files/", "/");
-                    var url = OC.generateUrl('/apps/files?dir=/' + apppath );
-                    a.setAttribute("href", url);
-
+                    a.setAttribute("href", "#");
                     a.classList.add("nav-icon-files");
                     a.classList.add("svg");
                     a.innerHTML=data[index].name;
-
-                    a.addEventListener("click", function(){
-                        window.location.href=url;
-                    });
-
                     node.appendChild(a);
 
 
-                    /*
-                    <li data-id="-Bravo" data-dir="/Bravo" data-view="files" class="nav--Bravo" folderposition="0">
-                        <a href="/server/index.php/apps/files/?dir=/Bravo&amp;view=files" class="nav-icon-files svg">Bravo</a>
-                    </li>
-                    */
-
                     document.getElementById(scope.$quickAccessListKey).appendChild(node);
+
+                    $( '#'+id.toString() ).on( "click", { id : id , path : data[index].path.replace("files/", "/") }, function(event) {
+                        scope.changeUrl("files", event.data.path, event.data.id);
+                        event.stopPropagation();
+                    });
+
                 }
             });
             },
+
+
+        /**
+         * Change the URL to point to the given dir and view
+         *
+         * taken from nextcloud stable13 apps/files/js/apps.js
+         */
+        changeUrl: function(view, dir, fileId) {
+            var params = "";
+            if (view !== 'files') {
+                params.view = view;
+            } else if (fileId) {
+                params.fileid = fileId;
+            }
+            var currentParams = OC.Util.History.parseUrlQuery();
+
+
+
+            if (currentParams.dir === params.dir && currentParams.view === params.view && currentParams.fileid !== params.fileid) {
+                // if only fileid changed or was added, replace instead of push
+                OC.Util.History.replaceState('dir=' + OC.encodePath(dir) + '&' + OC.buildQueryString(params));
+            } else {
+                OC.Util.History.pushState( 'dir=' + OC.encodePath(dir) + '&' + OC.buildQueryString(params));
+            }
+            OC.Apps.hideAppSidebar($('.detailsView'));
+            params.dir=dir;
+            new $.Event('urlChanged', params);
+            console.log("change!");
+        },
+
+
+
+
         /**
          * Event handler for when dragging an item
          */
