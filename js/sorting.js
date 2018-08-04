@@ -117,9 +117,10 @@
             var scope = this;
             $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/FavoriteFolders"), function (data, status) {
                 for (var index = 0; index < data.length; ++index) {
-                    //console.log(data[index]);
+                    console.log(data[index]);
                     var node=document.createElement("li");
-                    node.classList.add("nav-"+data[index].name);
+
+                    node.classList.add("nav-"+encodeURIComponent(data[index].name));
 
                     node.setAttribute("data-id",data[index].id);
 

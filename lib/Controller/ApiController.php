@@ -87,11 +87,13 @@ class ApiController extends Controller
         $i = 0;
         foreach ($nodes as &$node) {
 
+            if($node->getType() == "dir"){
             $favorites[$i]['id'] = $node->getId();
             $favorites[$i]['name'] = $node->getName();
             $favorites[$i]['path'] = $node->getInternalPath();
             $favorites[$i]['mtime'] = $node->getMTime();
             $i++;
+            }
         }
         return $favorites;
         //return new DataResponse(['favoriteFolders' => $favorites]);
