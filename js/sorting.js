@@ -67,11 +67,10 @@
 
         initialize: function ($el) {
             this._injectDropdownMenu();
-            this._setOnDrag();
             this.nc13preinit();
+            this._setOnDrag();
 
             var scope = this;
-            console.log("load sorting");
             $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/SortingStrategy"), function (data, status) {
                 scope.$sortingStrategy = data;
                 scope.setInitialQuickaccessSettings();
@@ -83,29 +82,65 @@
          * Build Nextcloud 13 Favorites Access
          */
         nc13preinit: function () {
+
             var favelem= document.getElementsByClassName('nav-favorites')[0];
             favelem.classList.add("collapsible");
-            favelem.classList.add("open");
+            favelem.id="nav-favorites";
+            favelem.setAttribute("expandedstate", true);
 
-            var ul = document.createElement("ul");                 // Create a <li> node
+            var button = document.createElement("button");
+            button.classList.add("collapse");
+            button.classList.add("app-navigation-noclose");
+            button.id="favoritesCollapsibleButton";
+            button.addEventListener("click", function(){
+                var $menu =$("#nav-favorites");
+                if ($menu.hasClass('collapsible')) {
+                    $menu.toggleClass('open');
+                }
+                $.get(OC.generateUrl("/apps/" + scope.$appname + "/api/v1/set/ExpandedState"), {state: $menu.hasClass('open')}, function (data, status) {});
+            });
+
+            $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/ExpandedState"), function (data, status) {
+                if((data == 'true')){
+                    $("#nav-favorites").addClass("open");
+                }else{
+                    $("#nav-favorites").removeClass("open");
+                }
+            });
+
+            favelem.appendChild(button);
+
+            var ul = document.createElement("ul");
             ul.id=this.$quickAccessListKey;
+            favelem.appendChild(ul);
+
             var scope = this;
-            //node.appendChild(textnode);                              // Append the text to <li>
-
-            favelem.appendChild(ul);     // Append <li> to <ul> with id="myList"
-
-
             $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/FavoriteFolders"), function (data, status) {
                 for (var index = 0; index < data.length; ++index) {
                     //console.log(data[index]);
                     var node=document.createElement("li");
+                    node.classList.add("nav-"+data[index].name);
+
+                    node.setAttribute("data-id",data[index].id);
+
+                    node.setAttribute("data-view","files");
                     node.setAttribute("folderposition",data[index].id);
 
                     var a=document.createElement("a");
-                    a.setAttribute("href",OC.generateUrl("/apps/files/?dir=" + data[index].path.replace("files/", "/")));
+
+                    //a.setAttribute("href",OC.generateUrl("/apps/files/?dir=" + data[index].path.replace("files/", "/")));
+                    var apppath =data[index].path.replace("files/", "/");
+                    var url = OC.generateUrl('/apps/files?dir=/' + apppath );
+                    a.setAttribute("href", url);
+
                     a.classList.add("nav-icon-files");
                     a.classList.add("svg");
                     a.innerHTML=data[index].name;
+
+                    a.addEventListener("click", function(){
+                        window.location.href=url;
+                    });
+
                     node.appendChild(a);
 
 
@@ -118,9 +153,7 @@
                     document.getElementById(scope.$quickAccessListKey).appendChild(node);
                 }
             });
-
             },
-
         /**
          * Event handler for when dragging an item
          */
@@ -201,7 +234,7 @@
                             string.push(Object);
                         }
                         var resultorder = JSON.stringify(string);
-                        $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/set/CustomSortingOrder"), {order: resultorder}, function (data, status) {});
+                        $.get(OC.generateUrl("/apps/" + scope.$appname + "/api/v1/set/CustomSortingOrder"), {order: resultorder}, function (data, status) {});
                     }
                 });
             });

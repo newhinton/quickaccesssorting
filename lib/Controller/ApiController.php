@@ -184,5 +184,40 @@ class ApiController extends Controller
         return $node->getType();
     }
 
+    /**
+     * Set sorting-order for custom sorting
+     *
+     * @NoAdminRequired
+     *
+     * @param String $order
+     * @return Response
+     */
+    public function setExpandedState($state)
+    {
+        $this->config->setUserValue(
+            $this->sessionid,
+            $this->appName,
+            'quickaccess_expanded_state',
+            (String)$state
+        );
 
+        return new Response();
+    }
+
+    /**
+     * Get sorting-order for custom sorting
+     *
+     * @NoAdminRequired
+     *
+     * @return String
+     */
+    public function getExpandedState()
+    {
+        return $this->config->getUserValue(
+            $this->sessionid,
+            $this->appName,
+            'quickaccess_expanded_state',
+            "true"
+        );
+    }
 }

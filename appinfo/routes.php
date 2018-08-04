@@ -47,5 +47,15 @@ return [
             'url' => '/api/v1/get/CustomSortingOrder',
             'verb' => 'GET',
         ],
+        [
+            'name' => 'Api#getExpandedState',
+            'url' => '/api/v1/get/ExpandedState',
+            'verb' => 'GET',
+        ],
+        [
+            'name' => 'Api#setExpandedState',
+            'url' => '/api/v1/set/ExpandedState',
+            'verb' => 'GET',
+        ],
     ]
 ];
