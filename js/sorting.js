@@ -65,12 +65,27 @@
 
         $SortingSelectionKey: 'sortingstrategy',
 
+
         initialize: function ($el) {
-            this._injectDropdownMenu();
-            this.nc13preinit();
-            this._setOnDrag();
 
             var scope = this;
+            var serverVersion = this;
+
+
+            jQuery.ajaxSetup({async:false});
+
+                $.get(OC.generateUrl("/apps/" + scope.$appname + "/api/v1/get/compareversion"), {minversion: "13.0.0", maxversion: "14.0.0"}, function (data, status) {
+                    serverVersion=data;
+                });
+            jQuery.ajaxSetup({async:true});
+
+            if(serverVersion){
+                this.nc13preinit();
+            }
+            this._injectDropdownMenu();
+            this._setOnDrag();
+
+
             $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/SortingStrategy"), function (data, status) {
                 scope.$sortingStrategy = data;
                 scope.setInitialQuickaccessSettings();
@@ -83,20 +98,23 @@
          */
         nc13preinit: function () {
 
+            this.$sortingStrategies = [["customorder", "Custom Order"], ["alphabet","Alphabetical"]];
+
+
             var favelem= document.getElementsByClassName('nav-favorites')[0];
             favelem.classList.add("collapsible");
             favelem.id="nav-favorites";
-            favelem.setAttribute("expandedstate", true);
 
             var button = document.createElement("button");
             button.classList.add("collapse");
-            button.classList.add("app-navigation-noclose");
             button.id="favoritesCollapsibleButton";
+
             button.addEventListener("click", function(){
                 var $menu =$("#nav-favorites");
                 if ($menu.hasClass('collapsible')) {
                     $menu.toggleClass('open');
                 }
+
                 $.get(OC.generateUrl("/apps/" + scope.$appname + "/api/v1/set/ExpandedState"), {state: $menu.hasClass('open')}, function (data, status) {});
             });
 
@@ -117,7 +135,6 @@
             var scope = this;
             $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/FavoriteFolders"), function (data, status) {
                 for (var index = 0; index < data.length; ++index) {
-                    console.log(data[index]);
                     var node=document.createElement("li");
 
                     node.classList.add("nav-"+encodeURIComponent(data[index].name));
@@ -126,6 +143,7 @@
                     node.setAttribute("data-id",id);
                     node.setAttribute("id",id);
                     node.setAttribute("folderposition",id);
+                    node.setAttribute("mtime", data[index].mtime);
 
                     var a=document.createElement("a");
                     a.setAttribute("href", "#");
@@ -172,7 +190,6 @@
             OC.Apps.hideAppSidebar($('.detailsView'));
             params.dir=dir;
             new $.Event('urlChanged', params);
-            console.log("change!");
         },
 
 
@@ -190,7 +207,6 @@
 
             injectionString+="       <option value='"+this.$sortingStrategies[0][0]+"'>"+t(this.$appname, this.$sortingStrategies[0][1]+" (Default)")+"</option>";
 
-            console.log(this.$sortingStrategy);
             this.$sortingStrategies.forEach(function(strategy){
                 injectionString+="       <option ";
                 if(this.$sortingStrategy===strategy[0]){
@@ -284,15 +300,12 @@
 
             strategyDropDownMenu.addEventListener("change", function () {
                 scope.$sortingStrategy = strategyDropDownMenu.value;
-                console.log("selected= "+scope.$sortingStrategy);
                 if (strategyDropDownMenu.value === "customorder") {
                     sortablelist.sortable({disabled: false});
                 } else {
                     sortablelist.sortable({disabled: true});
                 }
                 $.get(OC.generateUrl("/apps/" + scope.$appname + "/api/v1/set/SortingStrategy"), {strategy: scope.$sortingStrategy}, function (data, status) {
-                    console.log(data);
-                    console.log(status);
                     scope.QuickSort(list, 0, list.length - 1);
                 });
             });
@@ -323,7 +336,6 @@
             } else if (this.$sortingStrategy === 'customorder') {
                 var scope = this;
                 $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/CustomSortingOrder"), function (data, status) {
-                    console.log(data);
                     var ordering = JSON.parse(data);
                     for (var i = 0; i < ordering.length; i++) {
                         for (var j = 0; j < list.length; j++) {

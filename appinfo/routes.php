@@ -57,5 +57,15 @@ return [
             'url' => '/api/v1/set/ExpandedState',
             'verb' => 'GET',
         ],
+        [
+            'name' => 'Api#getVersion',
+            'url' => '/api/v1/get/version',
+            'verb' => 'GET',
+        ],
+        [
+            'name' => 'Api#compareVersionWithCurrent',
+            'url' => '/api/v1/get/compareversion',
+            'verb' => 'GET',
+        ],
     ]
 ];

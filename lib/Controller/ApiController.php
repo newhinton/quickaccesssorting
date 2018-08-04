@@ -29,6 +29,7 @@
  */
 
 
+
 namespace OCA\Quickaccesssorting\Controller;
 
 use OCP\AppFramework\Controller;
@@ -38,6 +39,7 @@ use OCP\IRequest;
 use OCP\IUserSession;
 use OCP\Files\Folder;
 use OCP\AppFramework\Http\Response;
+use OC_Util;
 
 
 /**
@@ -222,4 +224,22 @@ class ApiController extends Controller
             "true"
         );
     }
+
+    public function getVersion()
+    {
+        return OC_Util::getHumanVersion();
+    }
+
+    public function compareVersionWithCurrent($minversion, $maxversion)
+    {
+        if(
+            version_compare(OC_Util::getHumanVersion(), $minversion, '>=')
+            &&
+            version_compare(OC_Util::getHumanVersion(), $maxversion, '<')
+        ){
+            return true;
+        }
+        return false;
+    }
+
 }
