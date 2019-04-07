@@ -4,7 +4,7 @@
     <name>Favorites Quickaccess Sorting</name>
     <summary>Different Sorting for favorites-quickaccess!</summary>
     <description>This app enables to sort the favorites by 'Alphabetically', 'Date Added', 'Last Date Modified' and 'Custom Order'! </description>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <licence>agpl</licence>
     <author mail="felix.nuesse@t-online.de" >Felix Nüsse</author>
     <namespace>quickaccesssorting</namespace>
