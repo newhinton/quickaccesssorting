@@ -157,7 +157,7 @@
                             string.push(Object);
                         }
                         var resultorder = JSON.stringify(string);
-                        $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/set/CustomSortingOrder"), {order: resultorder}, function (data, status) {});
+                        $.get(OC.generateUrl("/apps/" + scope.$appname + "/api/v1/set/CustomSortingOrder"), {order: resultorder}, function (data, status) {});
                         element.parent().droppable('enable');
                     }
                 });

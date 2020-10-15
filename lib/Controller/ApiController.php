@@ -150,7 +150,7 @@ class ApiController extends Controller
             (String)$order
         );
 
-        return new Response();
+        return $this->getSortingOrder();
     }
 
     /**
