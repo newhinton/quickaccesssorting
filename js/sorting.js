@@ -52,7 +52,12 @@
         /**
          * Possible sorting strategies (first is Default)
          */
-        $sortingStrategies:  [["customorder", "Custom Order (Default)"], ["datemodified", "Date Modified"], ["date", "Date Added"], ["alphabet","Alphabetical"]],
+        $sortingStrategies:  [
+            ["customorder", "Custom Order (Default)"],
+            ["datemodified", "Date Modified"],
+            ["date", "Date Added"],
+            ["alphabet", "Alphabetical"]
+        ],
 
         /**
          * Key for the quick-acces-list
@@ -80,20 +85,21 @@
          */
         _injectDropdownMenu: function () {
 
+            var sortingStrategy= t(this.$appname, "Sorting-Strategy");
             var injectionString="<div id='files-setting-sorting' class='QuickAccessSettingsContainerPadding'>"+
-                "   <label for='"+this.$SortingSelectionKey+"'>Sorting-Strategy</label><br>"+
+                "   <label for='"+this.$SortingSelectionKey+"'>"+sortingStrategy+"</label><br>"+
                 "   <select id='"+this.$SortingSelectionKey+"' name='sortingstrategy'>";
 
 
             injectionString+="";
-
+            var self = this;
             //console.log(this.$sortingStrategy);
             this.$sortingStrategies.forEach(function(strategy){
                 injectionString+="       <option ";
                 if(this.$sortingStrategy===strategy[0]){
                     injectionString+="selected";
                 }
-                injectionString+=" value='"+strategy[0]+"'>"+t(this.$appname, strategy[1])+"</option>";
+                injectionString+=" value='"+strategy[0]+"'>"+t(self.$appname, strategy[1])+"</option>";
             });
 
             injectionString+="   </select>";
