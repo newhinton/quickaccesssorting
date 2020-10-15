@@ -119,6 +119,8 @@
                     //revert: 0.05,
                     //delay: 150,
                     start: function (event, ui) {
+                        element.parent().droppable('disable');
+
                         //Fix for offset
                         ui.helper[0].style.left = '0px';
 
@@ -156,6 +158,7 @@
                         }
                         var resultorder = JSON.stringify(string);
                         $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/set/CustomSortingOrder"), {order: resultorder}, function (data, status) {});
+                        element.parent().droppable('enable');
                     }
                 });
             });
@@ -326,5 +329,12 @@
 
     };
 
-})(window, jQuery, RightClick);
+})();
 
+window.addEventListener('DOMContentLoaded', function() {
+    // wait for other apps/extensions to register their event handlers and file actions
+    // in the "ready" clause
+    _.defer(function() {
+        OCA.Files.App.initialize();
+    });
+});
