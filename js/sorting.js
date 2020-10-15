@@ -52,7 +52,7 @@
         /**
          * Possible sorting strategies (first is Default)
          */
-        $sortingStrategies:  [["customorder", "Custom Order"], ["datemodified", "Date Modified"], ["date", "Date Added"], ["alphabet","Alphabetical"]],
+        $sortingStrategies:  [["customorder", "Custom Order (Default)"], ["datemodified", "Date Modified"], ["date", "Date Added"], ["alphabet","Alphabetical"]],
 
         /**
          * Key for the quick-acces-list
@@ -85,7 +85,7 @@
                 "   <select id='"+this.$SortingSelectionKey+"' name='sortingstrategy'>";
 
 
-            injectionString+="       <option value='"+this.$sortingStrategies[0][0]+"'>"+t(this.$appname, this.$sortingStrategies[0][1]+" (Default)")+"</option>";
+            injectionString+="";
 
             console.log(this.$sortingStrategy);
             this.$sortingStrategies.forEach(function(strategy){
