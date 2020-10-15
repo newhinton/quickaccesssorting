@@ -1,6 +1,7 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2018, Felix Nüsse
+ * @copyright Copyright (c) 2020, Felix Nüsse
  *
  * @author Felix Nüsse <felix.nuesse@t-online.de>
  *
@@ -20,8 +21,24 @@
  *
  */
 
+declare(strict_types=1);
 
-\OC::$server->getEventDispatcher()->addListener('OCA\Files::loadAdditionalScripts', function() {
-    script('quickaccesssorting', 'sorting');
-    style('quickaccesssorting', 'style');
-});
+namespace OCA\Quickaccesssorting\AppInfo;
+
+
+use OCP\AppFramework\App;
+use OCP\EventDispatcher\IEventDispatcher;
+
+class Application extends App {
+
+    public function __construct() {
+        parent::__construct('quickaccesssorting');
+
+        $dispatcher = $this->getContainer()->query(IEventDispatcher::class);
+        $dispatcher->addListener('OCA\Files::loadAdditionalScripts', function() {
+                script('quickaccesssorting', 'sorting');
+                style('quickaccesssorting', 'style');
+        });
+    }
+
+}
