@@ -87,7 +87,7 @@
 
             injectionString+="";
 
-            console.log(this.$sortingStrategy);
+            //console.log(this.$sortingStrategy);
             this.$sortingStrategies.forEach(function(strategy){
                 injectionString+="       <option ";
                 if(this.$sortingStrategy===strategy[0]){
@@ -184,15 +184,15 @@
 
             strategyDropDownMenu.addEventListener("change", function () {
                 scope.$sortingStrategy = strategyDropDownMenu.value;
-                console.log("selected= "+scope.$sortingStrategy);
+                //console.log("selected= "+scope.$sortingStrategy);
                 if (strategyDropDownMenu.value === "customorder") {
                     sortablelist.sortable({disabled: false});
                 } else {
                     sortablelist.sortable({disabled: true});
                 }
                 $.get(OC.generateUrl("/apps/" + scope.$appname + "/api/v1/set/SortingStrategy"), {strategy: scope.$sortingStrategy}, function (data, status) {
-                    console.log(data);
-                    console.log(status);
+                    //console.log(data);
+                    //console.log(status);
                     scope.QuickSort(list, 0, list.length - 1);
                 });
             });
