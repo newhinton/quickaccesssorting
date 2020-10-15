@@ -223,7 +223,13 @@
             } else if (this.$sortingStrategy === 'customorder') {
                 var scope = this;
                 $.get(OC.generateUrl("/apps/" + this.$appname + "/api/v1/get/CustomSortingOrder"), function (data, status) {
-                    var ordering = JSON.parse(data);
+                    var ordering;
+                    try {
+                        ordering = JSON.parse(data);
+                    } catch(e) {
+                        sort = false;
+                        return;
+                    }
                     for (var i = 0; i < ordering.length; i++) {
                         for (var j = 0; j < list.length; j++) {
                             if (scope.getCompareValue(list, j, 'alphabet').toLowerCase() === ordering[i].name.toLowerCase()) {
