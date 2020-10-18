@@ -4,7 +4,7 @@
     <name>Favorites Quickaccess Sorting</name>
     <summary>Different Sorting for favorites-quickaccess!</summary>
     <description>This app enables to sort the favorites by 'Alphabetically', 'Date Added', 'Last Date Modified' and 'Custom Order'! </description>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <licence>agpl</licence>
     <author mail="felix.nuesse@t-online.de" >Felix Nüsse</author>
     <namespace>quickaccesssorting</namespace>
@@ -15,7 +15,7 @@
     <bugs>https://github.com/newhinton/quickaccess-sorting/issues</bugs>
     <documentation>https://github.com/newhinton/quickaccess-sorting/issues/wiki</documentation>
     <dependencies>
-        <nextcloud min-version="20" max-version="20"/>
+        <nextcloud min-version="15" max-version="20"/>
     </dependencies>
 </info>
 
