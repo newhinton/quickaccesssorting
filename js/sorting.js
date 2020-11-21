@@ -21,11 +21,6 @@
 
 (function () {
 
-    $(document).ready(function () {
-        new NavigationExtender($(document));
-    });
-
-
     /**
      * @class OCA.Files.Navigation
      * @classdesc Navigation control for the files app sidebar.
@@ -340,5 +335,9 @@
         }
 
     };
+
+    $(document).ready(function () {
+        new NavigationExtender($(document));
+    });
 
 })();
