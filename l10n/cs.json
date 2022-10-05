@@ -1,0 +1,11 @@
+{ "translations": {
+    "Sorting-Strategy" : "Způsob řazení",
+    "Custom Order (Default)" : "Uživatelsky určené (výchozí)",
+    "Date Modified" : "Podle data změny",
+    "Date Added" : "Podle data přidání",
+    "Alphabetical" : "Abecedně",
+    "Favorites Quickaccess Sorting" : "Řazení oblíbených položek v rychlém přístupu",
+    "Different Sorting for favorites-quickaccess!" : "Různé řazení pro oblíbené položky v rychlém přístupu",
+    "This app enables to sort the favorites by 'Alphabetically', 'Date Added', Last Date Modified' and 'Custom Order'!" : "Tato aplikace umožňuje řadit oblíbené položky abecedně, podle data přidání, data poslední úpravy a uživatelsky."
+},"pluralForm" :"nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;"
+}
