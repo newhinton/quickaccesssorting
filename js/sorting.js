@@ -107,6 +107,9 @@
          * Event handler for when dragging an item
          */
         _setOnDrag: function () {
+            if(this.$sortingStrategy !== "customorder") {
+                return;
+            }
             var scope = this;
             var element = $("#sublist-favorites");
             $(function () {
