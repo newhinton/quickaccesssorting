@@ -15,7 +15,7 @@
     <bugs>https://github.com/newhinton/quickaccess-sorting/issues</bugs>
     <documentation>https://github.com/newhinton/quickaccess-sorting/issues/wiki</documentation>
     <dependencies>
-        <nextcloud min-version="25" max-version="26"/>
+        <nextcloud min-version="25" max-version="25"/>
     </dependencies>
 </info>
 
