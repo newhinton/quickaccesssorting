@@ -36,7 +36,7 @@ class Application extends App {
 
         $dispatcher = $this->getContainer()->query(IEventDispatcher::class);
         $dispatcher->addListener('OCA\Files::loadAdditionalScripts', function() {
-                script('quickaccesssorting', 'sorting');
+                script('quickaccesssorting', 'quickaccesssorting-main');
                 style('quickaccesssorting', 'style');
         });
     }
