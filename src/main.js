@@ -24,7 +24,9 @@
 
 import Vue from 'vue'
 import Settings from './Settings.vue'
-import Sortable from "sortablejs";
+import {getCompareValue, QuickSort, reverseList} from "./Quicksort";
+import {instantiateSortable, setHandle, setOrder} from "./SortableUtils";
+import {getList} from "./DomUtils";
 
 
 // Setup of settings
@@ -42,48 +44,74 @@ OCA.Files.Settings.register(new OCA.Files.Settings.Setting('quickaccesssorting',
 
 // Setup of Sidebar
 
-const favoritesItem = document.querySelectorAll('[data-cy-files-navigation-item="favorites"]');
-const favoritesList = favoritesItem.item(0).children.item(1);
 
-function setHandle(handling) {
-    const favoritesListItems = favoritesList.children;
-    for (var j = 0; j < favoritesListItems.length; j++) {
-        if (!(typeof favoritesListItems[j].getElementsByTagName('a')[0] === 'undefined')) {
-            var item = favoritesListItems[j].getElementsByClassName('app-navigation-entry-icon icon-folder')[0];
-            if(handling) {
-                item.classList.remove("icon-folder");
-                item.classList.add('icon-menu');
-            } else {
-                item.classList.remove("icon-menu");
-                item.classList.add('icon-folder');
+
+window.addEventListener('DOMContentLoaded', function() {
+
+
+});
+
+
+$.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), function (data, status) {
+
+    const list = getList().getElementsByTagName('li')
+    var sort = true;
+    var reverse = false;
+
+    console.log(data)
+
+
+    if (data === 'datemodified') {
+        sort = false;
+        reverse = true;
+
+        $.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/FavoriteFolders/"), function (data, status) {
+            for (let i = 0; i < data.favoriteFolders.length; i++) {
+                for (let j = 0; j < list.length; j++) {
+                    if (getCompareValue(list, j, 'alphabet').toLowerCase() === data.favoriteFolders[i].name.toLowerCase()) {
+                        list[j].setAttribute("mtime", data.favoriteFolders[i].mtime);
+                    }
+                }
             }
-        }
+            QuickSort(list, 0, list.length - 1);
+            reverseList(list);
+        });
+
+    } else if (data === 'alphabet') {
+        QuickSort(list, 0, list.length - 1, 'alphabet');
+        sort = false;
+    } else if (data === 'date') {
+        sort = true;
+    } else if (data === 'customorder') {
+        instantiateSortable(getList())
+        let newList = []
+        $.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/CustomSortingOrder"), function (data, status) {
+            let ordering;
+            try {
+                ordering = JSON.parse(data);
+            } catch(e) {
+                sort = false;
+                return;
+            }
+            for (let j = 0; j < list.length; j++) {
+                list[j].setAttribute("folderPosition", "999999");
+            }
+            for (let i = 0; i < ordering.length; i++) {
+                for (let j = 0; j < list.length; j++) {
+                    if (getCompareValue(list, j, "alphabet") === ordering[i].name.toLowerCase().trim()) {
+                        list[j].setAttribute("folderPosition", ordering[i].id);
+                        console.log(list[j].getAttribute("folderPosition"))
+                    }
+                }
+            }
+            QuickSort(list, 0, list.length - 1);
+        });
     }
-}
 
-Sortable.create(favoritesList, {
-    animation: 200,
-    // Element dragging started
-    onStart: function (/**Event*/evt) {
-        setHandle(true)
-    },
-
-    // Element dragging ended
-    onEnd: function (/**Event*/evt) {
-        var itemEl = evt.item;  // dragged HTMLElement
-        evt.to;    // target list
-        evt.from;  // previous list
-        evt.oldIndex;  // element's old index within old parent
-        evt.newIndex;  // element's new index within new parent
-        evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
-        evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
-        evt.clone // the clone element
-        evt.pullMode;  // when item is in another sortable: `"clone"` if cloning, `true` if moving
-        setHandle(false)
-    },
-
-    // Changed sorting within list
-    onUpdate: function (/**Event*/evt) {
-        // same properties as onEnd
-    },
+    if (sort) {
+        QuickSort(list, 0, list.length - 1);
+    }
+    if (reverse) {
+        reverseList(list);
+    }
 });

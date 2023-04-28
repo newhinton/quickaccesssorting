@@ -22,7 +22,13 @@
 <template>
 	<div id="settings-quickaccesssorting">
 		<label for="settings-quickaccesssorting-select">Quickaccess Sorting</label>
-		<NcSelect id="settings-quickaccesssorting-select" v-bind="props" v-model="props.value" value="0-john"/>
+		<br>
+		<NcSelect id="settings-quickaccesssorting-select"
+							v-bind="props"
+							v-model="props.value"
+							:value="props.default"
+							@input="updateStrategy(props.value)"
+		/>
 	</div>
 </template>
 
@@ -39,20 +45,44 @@ export default {
 		NcSelect,
 	},
 	data() {
+		this.loadStrategy();
 		return {
 			props: {
+				default: "customorder",
 				inputId: "001",
 				userSelect: true,
 				options: [
 					{
-						id: '0-john',
-						displayName: 'Custom Sorting',
+						id: 'customorder',
+						displayName: 'Custom Order',
 						subtitle: 'Default, you can rearrange the order.'
+					},
+					{
+						id: 'datemodified',
+						displayName: 'Date Modified',
+						subtitle: 'Ordered by the last time the folders were changed.'
+					},
+					{
+						id: 'date',
+						displayName: 'Date Added',
+						subtitle: 'Ordered by the time the folders were added.'
+					},
+					{
+						id: 'alphabet',
+						displayName: 'Alphabetical',
+						subtitle: 'From A to Z,'
 					},
 				],
 			},
 		}
 	},
-	methods: {},
+	methods: {
+		loadStrategy() {
+			$.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), (data, status) => {});
+		},
+		updateStrategy(val) {
+			$.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/set/SortingStrategy"), {strategy: val.id}, function (data, status) {});
+		},
+	},
 }
 </script>
