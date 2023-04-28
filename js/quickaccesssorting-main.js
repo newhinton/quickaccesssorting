@@ -9337,12 +9337,13 @@ __webpack_require__.r(__webpack_exports__);
   components: {
     NcSelect: (_nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_0___default())
   },
-  data() {
+  mounted: function () {
     this.loadStrategy();
+  },
+  data() {
     return {
       props: {
-        default: "customorder",
-        inputId: "001",
+        inputId: "settings-quickaccesssorting-select",
         userSelect: true,
         options: [{
           id: 'customorder',
@@ -9366,7 +9367,14 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     loadStrategy() {
-      $.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), (data, status) => {});
+      $.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), (data, status) => {
+        for (const option in this.props.options) {
+          console.log(this.props.options[option]);
+          if (this.props.options[option].id === data) {
+            this.props.value = this.props.options[option];
+          }
+        }
+      });
     },
     updateStrategy(val) {
       $.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/set/SortingStrategy"), {
@@ -58627,4 +58635,4 @@ $.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), fun
 
 /******/ })()
 ;
-//# sourceMappingURL=quickaccesssorting-main.js.map?v=6575792dd571405443c4
+//# sourceMappingURL=quickaccesssorting-main.js.map?v=fd75abd28813890d0f46

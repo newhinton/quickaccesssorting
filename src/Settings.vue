@@ -36,18 +36,18 @@
 
 import NcSelect from '@nextcloud/vue/dist/Components/NcSelect'
 
-
 export default {
 	name: 'Settings',
 	components: {
 		NcSelect,
 	},
-	data() {
+	mounted: function(){
 		this.loadStrategy();
+	},
+	data() {
 		return {
 			props: {
-				default: "customorder",
-				inputId: "001",
+				inputId: "settings-quickaccesssorting-select",
 				userSelect: true,
 				options: [
 					{
@@ -76,7 +76,16 @@ export default {
 	},
 	methods: {
 		loadStrategy() {
-			$.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), (data, status) => {});
+			$.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), (data, status) => {
+
+				for (const option in this.props.options) {
+					console.log(this.props.options[option])
+					if(this.props.options[option].id === data) {
+						this.props.value = this.props.options[option];
+					}
+				}
+
+			});
 		},
 		updateStrategy(val) {
 			$.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/set/SortingStrategy"), {strategy: val.id}, function (data, status) {});
