@@ -698,74 +698,6 @@ const computePosition = (reference, floating, options) => {
 
 /***/ }),
 
-/***/ "./node_modules/@nextcloud/auth/dist/index.esm.js":
-/*!********************************************************!*\
-  !*** ./node_modules/@nextcloud/auth/dist/index.esm.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "getCurrentUser": () => (/* binding */ getCurrentUser),
-/* harmony export */   "getRequestToken": () => (/* binding */ getRequestToken),
-/* harmony export */   "onRequestTokenUpdate": () => (/* binding */ onRequestTokenUpdate)
-/* harmony export */ });
-/* harmony import */ var _nextcloud_event_bus__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/event-bus */ "./node_modules/@nextcloud/event-bus/dist/index.esm.js");
-
-
-const tokenElement = document.getElementsByTagName('head')[0];
-let token = tokenElement ? tokenElement.getAttribute('data-requesttoken') : null;
-const observers = [];
-function getRequestToken() {
-    return token;
-}
-function onRequestTokenUpdate(observer) {
-    observers.push(observer);
-}
-// Listen to server event and keep token in sync
-(0,_nextcloud_event_bus__WEBPACK_IMPORTED_MODULE_0__.subscribe)('csrf-token-update', e => {
-    token = e.token;
-    observers.forEach(observer => {
-        try {
-            observer(e.token);
-        }
-        catch (e) {
-            console.error('error updating CSRF token observer', e);
-        }
-    });
-});
-
-/// <reference types="@nextcloud/typings" />
-const getAttribute = (el, attribute) => {
-    if (el) {
-        return el.getAttribute(attribute);
-    }
-    return null;
-};
-const head = document.getElementsByTagName('head')[0];
-const uid = getAttribute(head, 'data-user');
-const displayName = getAttribute(head, 'data-user-displayname');
-const isAdmin = (typeof OC === 'undefined')
-    ? false
-    : OC.isUserAdmin();
-function getCurrentUser() {
-    if (uid === null) {
-        return null;
-    }
-    return {
-        uid,
-        displayName,
-        isAdmin,
-    };
-}
-
-
-//# sourceMappingURL=index.esm.js.map
-
-
-/***/ }),
-
 /***/ "./node_modules/@nextcloud/auth/dist/index.js":
 /*!****************************************************!*\
   !*** ./node_modules/@nextcloud/auth/dist/index.js ***!
@@ -829,114 +761,6 @@ exports.getCurrentUser = getCurrentUser;
 exports.getRequestToken = getRequestToken;
 exports.onRequestTokenUpdate = onRequestTokenUpdate;
 //# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/@nextcloud/axios/dist/index.esm.js":
-/*!*********************************************************!*\
-  !*** ./node_modules/@nextcloud/axios/dist/index.esm.js ***!
-  \*********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ cancelableClient)
-/* harmony export */ });
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _nextcloud_auth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @nextcloud/auth */ "./node_modules/@nextcloud/auth/dist/index.esm.js");
-/* harmony import */ var _nextcloud_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @nextcloud/router */ "./node_modules/@nextcloud/router/dist/index.js");
-
-
-
-
-const RETRY_KEY = Symbol('csrf-retry');
-const onError$2 = axios => async (error) => {
-    const { config, response, request } = error;
-    const responseURL = request?.responseURL;
-    const status = response?.status;
-    if (status === 412
-        && response?.data?.message === 'CSRF check failed'
-        && config[RETRY_KEY] === undefined) {
-        console.warn(`Request to ${responseURL} failed because of a CSRF mismatch. Fetching a new token`);
-        const { data: { token } } = await axios.get((0,_nextcloud_router__WEBPACK_IMPORTED_MODULE_2__.generateUrl)('/csrftoken'));
-        console.debug(`New request token ${token} fetched`);
-        axios.defaults.headers.requesttoken = token;
-        return axios({
-            ...config,
-            headers: {
-                ...config.headers,
-                requesttoken: token,
-            },
-            [RETRY_KEY]: true,
-        });
-    }
-    return Promise.reject(error);
-};
-
-const RETRY_DELAY_KEY = Symbol('retryDelay');
-const onError$1 = axios => async (error) => {
-    const { config, response, request } = error;
-    const responseURL = request?.responseURL;
-    const status = response?.status;
-    const headers = response?.headers;
-    /**
-     * Retry requests if they failed due to maintenance mode
-     *
-     * The delay is exponential. It starts at 2s and then doubles
-     * until a final retry after 32s. This results in roughly 1m of
-     * retries until we give up and throw the axios error towards
-     * the caller.
-     */
-    if (status === 503
-        && headers['x-nextcloud-maintenance-mode'] === '1'
-        && config.retryIfMaintenanceMode
-        && (!config[RETRY_DELAY_KEY] || config[RETRY_DELAY_KEY] <= 32)) {
-        const retryDelay = (config[RETRY_DELAY_KEY] ?? 1) * 2;
-        console.warn(`Request to ${responseURL} failed because of maintenance mode. Retrying in ${retryDelay}s`);
-        await new Promise((resolve, _) => {
-            setTimeout(resolve, retryDelay * 1000);
-        });
-        return axios({
-            ...config,
-            [RETRY_DELAY_KEY]: retryDelay,
-        });
-    }
-    return Promise.reject(error);
-};
-
-const onError = async (error) => {
-    const { config, response, request } = error;
-    const responseURL = request?.responseURL;
-    const status = response?.status;
-    if (status === 401
-        && response?.data?.message === 'Current user is not logged in'
-        && config.reloadExpiredSession
-        && window?.location) {
-        console.error(`Request to ${responseURL} failed because the user session expired. Reloading the page …`);
-        window.location.reload();
-    }
-    return Promise.reject(error);
-};
-
-const client = axios__WEBPACK_IMPORTED_MODULE_0___default().create({
-    headers: {
-        requesttoken: (0,_nextcloud_auth__WEBPACK_IMPORTED_MODULE_1__.getRequestToken)() ?? ''
-    }
-});
-const cancelableClient = Object.assign(client, {
-    CancelToken: (axios__WEBPACK_IMPORTED_MODULE_0___default().CancelToken),
-    isCancel: (axios__WEBPACK_IMPORTED_MODULE_0___default().isCancel),
-});
-cancelableClient.interceptors.response.use(r => r, onError$2(cancelableClient));
-cancelableClient.interceptors.response.use(r => r, onError$1(cancelableClient));
-cancelableClient.interceptors.response.use(r => r, onError);
-(0,_nextcloud_auth__WEBPACK_IMPORTED_MODULE_1__.onRequestTokenUpdate)(token => client.defaults.headers.requesttoken = token);
-
-
-//# sourceMappingURL=index.esm.js.map
 
 
 /***/ }),
@@ -3685,126 +3509,6 @@ function loadState(app, key, fallback) {
   }
 }
 //# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ "./node_modules/@nextcloud/event-bus/dist/index.esm.js":
-/*!*************************************************************!*\
-  !*** ./node_modules/@nextcloud/event-bus/dist/index.esm.js ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ProxyBus": () => (/* binding */ ProxyBus),
-/* harmony export */   "SimpleBus": () => (/* binding */ SimpleBus),
-/* harmony export */   "emit": () => (/* binding */ emit),
-/* harmony export */   "subscribe": () => (/* binding */ subscribe),
-/* harmony export */   "unsubscribe": () => (/* binding */ unsubscribe)
-/* harmony export */ });
-/* harmony import */ var semver_functions_valid_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! semver/functions/valid.js */ "./node_modules/@nextcloud/event-bus/node_modules/semver/functions/valid.js");
-/* harmony import */ var semver_functions_valid_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(semver_functions_valid_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var semver_functions_major_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! semver/functions/major.js */ "./node_modules/@nextcloud/event-bus/node_modules/semver/functions/major.js");
-/* harmony import */ var semver_functions_major_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(semver_functions_major_js__WEBPACK_IMPORTED_MODULE_1__);
-
-
-
-class ProxyBus {
-    bus;
-    constructor(bus) {
-        if (typeof bus.getVersion !== 'function' || !semver_functions_valid_js__WEBPACK_IMPORTED_MODULE_0___default()(bus.getVersion())) {
-            console.warn('Proxying an event bus with an unknown or invalid version');
-        }
-        else if (semver_functions_major_js__WEBPACK_IMPORTED_MODULE_1___default()(bus.getVersion()) !== semver_functions_major_js__WEBPACK_IMPORTED_MODULE_1___default()(this.getVersion())) {
-            console.warn('Proxying an event bus of version ' + bus.getVersion() + ' with ' + this.getVersion());
-        }
-        this.bus = bus;
-    }
-    getVersion() {
-        return "3.0.2";
-    }
-    subscribe(name, handler) {
-        this.bus.subscribe(name, handler);
-    }
-    unsubscribe(name, handler) {
-        this.bus.unsubscribe(name, handler);
-    }
-    emit(name, event) {
-        this.bus.emit(name, event);
-    }
-}
-
-class SimpleBus {
-    handlers = new Map();
-    getVersion() {
-        return "3.0.2";
-    }
-    subscribe(name, handler) {
-        this.handlers.set(name, (this.handlers.get(name) || []).concat(handler));
-    }
-    unsubscribe(name, handler) {
-        this.handlers.set(name, (this.handlers.get(name) || []).filter(h => h != handler));
-    }
-    emit(name, event) {
-        (this.handlers.get(name) || []).forEach(h => {
-            try {
-                h(event);
-            }
-            catch (e) {
-                console.error('could not invoke event listener', e);
-            }
-        });
-    }
-}
-
-function getBus() {
-    if ((typeof window.OC !== 'undefined') && window.OC._eventBus && typeof window._nc_event_bus === 'undefined') {
-        console.warn('found old event bus instance at OC._eventBus. Update your version!');
-        window._nc_event_bus = window.OC._eventBus;
-    }
-    // Either use an existing event bus instance or create one
-    if (typeof window._nc_event_bus !== 'undefined') {
-        return new ProxyBus(window._nc_event_bus);
-    }
-    else {
-        return window._nc_event_bus = new SimpleBus();
-    }
-}
-const bus = getBus();
-/**
- * Register an event listener
- *
- * @param name name of the event
- * @param handler callback invoked for every matching event emitted on the bus
- */
-function subscribe(name, handler) {
-    bus.subscribe(name, handler);
-}
-/**
- * Unregister a previously registered event listener
- *
- * Note: doesn't work with anonymous functions (closures). Use method of an object or store listener function in variable.
- *
- * @param name name of the event
- * @param handler callback passed to `subscribed`
- */
-function unsubscribe(name, handler) {
-    bus.unsubscribe(name, handler);
-}
-/**
- * Emit an event
- *
- * @param name name of the event
- * @param event event payload
- */
-function emit(name, event) {
-    bus.emit(name, event);
-}
-
-
-//# sourceMappingURL=index.esm.js.map
-
 
 /***/ }),
 
@@ -9625,17 +9329,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _nextcloud_router__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/router */ "./node_modules/@nextcloud/router/dist/index.js");
-/* harmony import */ var _nextcloud_axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @nextcloud/axios */ "./node_modules/@nextcloud/axios/dist/index.esm.js");
-/* harmony import */ var _nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @nextcloud/vue/dist/Components/NcSelect */ "./node_modules/@nextcloud/vue/dist/Components/NcSelect.js");
-/* harmony import */ var _nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_2__);
-
-
+/* harmony import */ var _nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @nextcloud/vue/dist/Components/NcSelect */ "./node_modules/@nextcloud/vue/dist/Components/NcSelect.js");
+/* harmony import */ var _nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_0__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: 'Settings',
   components: {
-    NcSelect: (_nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_2___default())
+    NcSelect: (_nextcloud_vue_dist_Components_NcSelect__WEBPACK_IMPORTED_MODULE_0___default())
   },
   data() {
     this.loadStrategy();
@@ -58927,4 +58627,4 @@ $.get(OC.generateUrl("/apps/quickaccesssorting/api/v1/get/SortingStrategy"), fun
 
 /******/ })()
 ;
-//# sourceMappingURL=quickaccesssorting-main.js.map?v=f4f2ed034bba62474aed
+//# sourceMappingURL=quickaccesssorting-main.js.map?v=6575792dd571405443c4
