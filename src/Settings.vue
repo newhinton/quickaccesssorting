@@ -34,8 +34,6 @@
 
 <script>
 
-import { generateUrl } from '@nextcloud/router'
-import axios from '@nextcloud/axios'
 import NcSelect from '@nextcloud/vue/dist/Components/NcSelect'
 
 
