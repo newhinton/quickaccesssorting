@@ -20,7 +20,7 @@
     "stylelint:fix": "stylelint css/*.css css/*.scss src/**/*.scss src/**/*.vue --fix"
   },
   "dependencies": {
-    "@nextcloud/axios": "^2.3.0",
+    "@nextcloud/axios": "^2.4.0",
     "@nextcloud/vue": "^7.10.0",
     "sortablejs": "^1.15.0",
     "vue": "^2.7.13"
